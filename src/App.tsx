@@ -21,6 +21,14 @@ function App() {
     setInput('')
   }
 
+  function deleteTodo(id: number) {
+    setTodos(todos.filter((todo) => todo.id !== id))
+  }
+
+  function toggleTodo(id: number) {
+    setTodos(todos.map((todo) => todo.id === id ? { ...todo, done: !todo.done } : todo))
+  }
+
   return (
     <div>
       <h1>My To-Do App</h1>
@@ -37,7 +45,11 @@ function App() {
       <ul>
         {todos.map((todo) => (
           <li key={todo.id}>
-            {todo.text}
+            <input type="checkbox" checked={todo.done} onChange={() => toggleTodo(todo.id)} />
+            <span style={{ textDecoration: todo.done ? 'line-through' : 'none' }}>
+              {todo.text}
+            </span>
+            <button onClick={() => deleteTodo(todo.id)}>Delete</button>
           </li>
         ))}
       </ul>
