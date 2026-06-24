@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface Todo {
   id: number
@@ -7,8 +7,15 @@ interface Todo {
 }
 
 function App() {
-  const [todos, setTodos] = useState<Todo[]>([])
+  const [todos, setTodos] = useState<Todo[]>(() => {
+    const saved = localStorage.getItem('todos')
+    return saved ? JSON.parse(saved) : []
+  })
   const [input, setInput] = useState('')
+
+  useEffect(() => {
+    localStorage.setItem('todos', JSON.stringify(todos))
+  }, [todos])
 
   function addTodo() {
     if (input.trim() === '') return
@@ -25,15 +32,16 @@ function App() {
     setTodos(todos.filter((todo) => todo.id !== id))
   }
 
-  function toggleTodo(id: number) {
-    setTodos(todos.map((todo) => todo.id === id ? { ...todo, done: !todo.done } : todo))
+  function toggleDone(id: number) {
+    setTodos(todos.map((todo) =>
+      todo.id === id ? { ...todo, done: !todo.done } : todo
+    ))
   }
 
   return (
     <div>
       <h1>My To-Do App</h1>
 
-      {/* Input to add a todo */}
       <input
         value={input}
         onChange={(e) => setInput(e.target.value)}
@@ -41,11 +49,14 @@ function App() {
       />
       <button onClick={addTodo}>Add</button>
 
-      {/* List of todos */}
       <ul>
         {todos.map((todo) => (
           <li key={todo.id}>
-            <input type="checkbox" checked={todo.done} onChange={() => toggleTodo(todo.id)} />
+            <input
+              type="checkbox"
+              checked={todo.done}
+              onChange={() => toggleDone(todo.id)}
+            />
             <span style={{ textDecoration: todo.done ? 'line-through' : 'none' }}>
               {todo.text}
             </span>
